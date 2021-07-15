@@ -62,7 +62,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return CreateRecipeSerializer
 
     def get_serializer_context(self):
-        context = super(RecipeViewSet, self).get_serializer_context()
+        context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
 
@@ -78,9 +78,18 @@ class FavoriteViewSet(APIView):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)
         if Favorite.objects.filter(user=user, recipe=recipe).exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"Fail": "Уже в избранных"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = FavoriteSerializer(recipe, data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
         Favorite.objects.get_or_create(user=user, recipe=recipe)
-        serializer = FavoriteSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
@@ -102,10 +111,19 @@ class ShoppingCartViewSet(APIView):
     def post(self, request, recipe_id):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        if Favorite.objects.filter(user=user, recipe=recipe).exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+            return Response(
+                {"Fail": "Уже в корзине"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = ShoppingCartSerializer(recipe, data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
         ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
-        serializer = ShoppingCartSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
@@ -130,14 +148,14 @@ def DownloadShoppingCart(request):
     user = request.user
     shopping_cart = user.shopping_cart.all()
     buying_list = {}
-    for i in range(len(shopping_cart)):
-        recipe = shopping_cart[i].recipe
+    for record in shopping_cart:
+        recipe = record.recipe
         ingredients = IngredientInRecipe.objects.filter(recipe=recipe)
-        for j in range(len(ingredients)):
-            amount = ingredients[j].amount
-            name = ingredients[j].ingredient.name
-            measurement_unit = ingredients[j].ingredient.measurement_unit
-            if name not in buying_list.keys():
+        for ingredient in ingredients:
+            amount = ingredient.amount
+            name = ingredient.ingredient.name
+            measurement_unit = ingredient.ingredient.measurement_unit
+            if name not in buying_list:
                 buying_list[name] = {
                     'measurement_unit': measurement_unit,
                     'amount': amount

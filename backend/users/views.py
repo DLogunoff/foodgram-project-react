@@ -56,14 +56,13 @@ class ListFollowViewSet(generics.ListAPIView):
     serializer_class = FollowSerializer
 
     def get_serializer_context(self):
-        context = super(ListFollowViewSet, self).get_serializer_context()
+        context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
 
     def get_queryset(self):
         user = self.request.user
-        follows = user.follower.all()
-        return [record.author for record in follows]
+        return User.objects.filter(following__user=user)
 
 
 class FollowViewSet(APIView):
@@ -76,10 +75,23 @@ class FollowViewSet(APIView):
     def post(self, request, author_id):
         user = self.request.user
         author = get_object_or_404(User, id=author_id)
-        if user == author:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if user == author or Follow.objects.filter(user=user, author=author).exists():
+            return Response(
+                {"Fail": "Ошибка"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = FollowSerializer(
+            author,
+            data=request.data,
+            context={'request': request}
+        )
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer.save()
         Follow.objects.get_or_create(user=user, author=author)
-        serializer = FollowSerializer(author, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, author_id):

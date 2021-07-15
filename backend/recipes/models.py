@@ -7,30 +7,40 @@ User = get_user_model()
 
 class Tag(models.Model):
     """Describe Tag model."""
+    BLUE = '#0000FF'
+    RED = '#FF0000'
+    GREEN = '#008000'
+    LIGHT_GREEN = '#6FFF00'
+    PURPLE = '#800080'
+    TURQUOISE = '#40E0D0'
+    YELLOW = '#FFFF00'
+    BROWN = '#A52A2A'
+
     COLOR_CHOICES = [
-        ('#0000FF', 'Синий'),
-        ('#FF0000', 'Красный'),
-        ('#008000', 'Зелёный'),
-        ('#800080', 'Фиолетовый'),
+        (BLUE, 'Синий'),
+        (RED, 'Красный'),
+        (GREEN, 'Зелёный'),
+        (LIGHT_GREEN, 'Светло-зелёный'),
+        (PURPLE, 'Фиолетовый'),
+        (TURQUOISE, 'Бирюзовый'),
+        (YELLOW, 'Жёлтый'),
+        (BROWN, 'Коричневый')
     ]
 
     name = models.CharField(
         max_length=200,
         unique=True,
-        null=True, blank=True,
         verbose_name='Название тега',
     )
     color = models.CharField(
         max_length=7,
         choices=COLOR_CHOICES,
         unique=True,
-        null=True, blank=True,
         verbose_name='Цвет',
     )
     slug = models.SlugField(
         max_length=200,
         unique=True,
-        null=True, blank=True,
         verbose_name='Слаг'
     )
 
@@ -69,7 +79,7 @@ class Recipe(models.Model):
         User,
         on_delete=models.CASCADE,
         null=True,
-        related_name='recipe_author',
+        related_name='recipes',
         verbose_name='Автор'
     )
     tags = models.ManyToManyField(
@@ -85,7 +95,7 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientInRecipe',
-        related_name='ingredients',
+        related_name='recipes',
         blank=True,
     )
     pub_date = models.DateTimeField(
@@ -95,7 +105,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         upload_to='recipes/images/',
         verbose_name='Изображение',
-        blank=True, null=True,
     )
 
     class Meta:
@@ -163,13 +172,13 @@ class Favorite(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorite',
+        related_name='favorites',
         verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorite',
+        related_name='favorites',
         verbose_name='Рецепт'
     )
     when_added = models.DateTimeField(
