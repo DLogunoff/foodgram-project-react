@@ -73,7 +73,7 @@ class FollowViewSet(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request, author_id):
-        user = self.request.user
+        user = request.user
         follow_exist = Follow.objects.filter(
             user=user,
             author__id=author_id
@@ -97,7 +97,7 @@ class FollowViewSet(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, author_id):
-        user = self.request.user
+        user = request.user
         author = get_object_or_404(User, id=author_id)
         obj = get_object_or_404(Follow, user=user, author=author)
         obj.delete()

@@ -57,6 +57,20 @@ class MyAuthTokenSerializer(serializers.Serializer):
         return attrs
 
 
+class ShowRecipeAddedSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = fields
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        photo_url = obj.image.url
+        return request.build_absolute_uri(photo_url)
+
+
 class FollowRecipeSerializer(serializers.ModelSerializer):
     """
     Describes Recipe Serializer, which used in FollowSerializer
@@ -86,7 +100,12 @@ class ShowFollowSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         recipes = obj.recipes.all()[:RECIPES_LIMIT]
-        return FollowRecipeSerializer(recipes, many=True).data
+        request = self.context.get('request')
+        return ShowRecipeAddedSerializer(
+            recipes,
+            many=True,
+            context={'request': request}
+        ).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -102,4 +121,8 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ('user', 'author')
 
     def to_representation(self, instance):
-        return ShowFollowSerializer(instance.author).data
+        request = self.context.get('request')
+        return ShowFollowSerializer(
+            instance.author,
+            context={'request': request}
+        ).data

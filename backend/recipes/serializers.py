@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag, TagsInRecipe)
-from users.serializers import UserSerializerModified
+from users.serializers import ShowRecipeAddedSerializer, UserSerializerModified
 
 from .fields import Base64ImageField
 
@@ -147,19 +147,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return data
 
 
-class ShowRecipeAddedSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(
-        max_length=None,
-        use_url=True,
-        read_only=True,
-    )
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-        read_only_fields = ('id', 'name', 'cooking_time')
-
-
 class FavoriteSerializer(serializers.ModelSerializer):
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
@@ -169,7 +156,11 @@ class FavoriteSerializer(serializers.ModelSerializer):
         fields = ('user', 'recipe')
 
     def to_representation(self, instance):
-        return ShowRecipeAddedSerializer(instance.recipe).data
+        request = self.context.get('request')
+        return ShowRecipeAddedSerializer(
+            instance.recipe,
+            context={'request': request}
+        ).data
 
 
 class ShoppingCartSerializer(FavoriteSerializer):

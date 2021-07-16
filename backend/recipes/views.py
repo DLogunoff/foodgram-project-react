@@ -75,7 +75,7 @@ class FavoriteViewSet(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request, recipe_id):
-        user = self.request.user
+        user = request.user
         data = {
             "user": user.id,
             "recipe": recipe_id,
@@ -85,7 +85,7 @@ class FavoriteViewSet(APIView):
                 {"Fail": "Уже в избранном"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = FavoriteSerializer(data=data)
+        serializer = FavoriteSerializer(data=data, context={'request': request})
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
@@ -95,7 +95,7 @@ class FavoriteViewSet(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
-        user = self.request.user
+        user = request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)
         if not Favorite.objects.filter(user=user, recipe=recipe).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -111,7 +111,7 @@ class ShoppingCartViewSet(APIView):
     permission_classes = [IsAuthenticated, ]
 
     def post(self, request, recipe_id):
-        user = self.request.user
+        user = request.user
         data = {
             "user": user.id,
             "recipe": recipe_id,
@@ -121,7 +121,8 @@ class ShoppingCartViewSet(APIView):
                 {"Fail": "Уже в корзине"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = ShoppingCartSerializer(data=data)
+        context = {'request':request}
+        serializer = ShoppingCartSerializer(data=data, context=context)
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
@@ -131,7 +132,7 @@ class ShoppingCartViewSet(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
-        user = self.request.user
+        user = request.user
         recipe = get_object_or_404(Recipe, id=recipe_id)
         if not ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
