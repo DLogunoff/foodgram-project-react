@@ -78,7 +78,6 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        null=True,
         related_name='recipes',
         verbose_name='Автор'
     )
@@ -131,7 +130,7 @@ class TagsInRecipe(models.Model):
     )
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     class Meta:
@@ -173,12 +172,14 @@ class Favorite(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='favorites',
+        #null=True,
         verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorites',
+        #null=True,
         verbose_name='Рецепт'
     )
     when_added = models.DateTimeField(

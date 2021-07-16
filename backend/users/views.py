@@ -74,24 +74,26 @@ class FollowViewSet(APIView):
 
     def post(self, request, author_id):
         user = self.request.user
-        author = get_object_or_404(User, id=author_id)
-        if user == author or Follow.objects.filter(user=user, author=author).exists():
+        follow_exist = Follow.objects.filter(
+            user=user,
+            author__id=author_id
+        ).exists()
+        if user.id == author_id or follow_exist:
             return Response(
                 {"Fail": "Ошибка"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = FollowSerializer(
-            author,
-            data=request.data,
-            context={'request': request}
-        )
+        data = {
+            'user': user.id,
+            'author': author_id
+        }
+        serializer = FollowSerializer(data=data, context={'request': request})
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
-        Follow.objects.get_or_create(user=user, author=author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, author_id):

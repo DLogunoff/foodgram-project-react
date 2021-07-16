@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
@@ -5,6 +6,8 @@ from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
 from users.serializers import UserSerializerModified
 
 from .fields import Base64ImageField
+
+User = get_user_model()
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -52,14 +55,14 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
         return IngredientInRecipeSerializer(qs, many=True).data
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request', None)
+        request = self.context.get('request')
         if request is None:
             return False
         user = request.user
         return Favorite.objects.filter(recipe=obj, user=user).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request', None)
+        request = self.context.get('request')
         if request is None:
             return False
         user = request.user
@@ -113,7 +116,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         tags_data = validated_data.pop('tags')
-        print(tags_data)
         ingredient_data = validated_data.pop('ingredients')
         TagsInRecipe.objects.filter(recipe=instance).delete()
         for tag in tags_data:
@@ -145,14 +147,32 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return data
 
 
-class FavoriteSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(max_length=None, use_url=True, read_only=True)
+class ShowRecipeAddedSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(
+        max_length=None,
+        use_url=True,
+        read_only=True,
+    )
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-        read_only_fields = ('name', 'cooking_time')
+        read_only_fields = ('id', 'name', 'cooking_time')
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipe.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+
+    def to_representation(self, instance):
+        return ShowRecipeAddedSerializer(instance.recipe).data
 
 
 class ShoppingCartSerializer(FavoriteSerializer):
-    pass
+
+    class Meta(FavoriteSerializer.Meta):
+        model = ShoppingCart

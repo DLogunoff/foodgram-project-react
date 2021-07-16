@@ -76,20 +76,22 @@ class FavoriteViewSet(APIView):
 
     def post(self, request, recipe_id):
         user = self.request.user
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        if Favorite.objects.filter(user=user, recipe=recipe).exists():
+        data = {
+            "user": user.id,
+            "recipe": recipe_id,
+        }
+        if Favorite.objects.filter(user=user, recipe__id=recipe_id).exists():
             return Response(
-                {"Fail": "Уже в избранных"},
+                {"Fail": "Уже в избранном"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = FavoriteSerializer(recipe, data=request.data)
+        serializer = FavoriteSerializer(data=data)
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
-        Favorite.objects.get_or_create(user=user, recipe=recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
@@ -110,20 +112,22 @@ class ShoppingCartViewSet(APIView):
 
     def post(self, request, recipe_id):
         user = self.request.user
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+        data = {
+            "user": user.id,
+            "recipe": recipe_id,
+        }
+        if ShoppingCart.objects.filter(user=user, recipe__id=recipe_id).exists():
             return Response(
                 {"Fail": "Уже в корзине"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = ShoppingCartSerializer(recipe, data=request.data)
+        serializer = ShoppingCartSerializer(data=data)
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
-        ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, recipe_id):
@@ -136,7 +140,7 @@ class ShoppingCartViewSet(APIView):
 
 
 @api_view(['GET'])
-def DownloadShoppingCart(request):
+def download_shopping_cart(request):
     """
     Describes View-function, which allows to download a PDF file
     listing the ingredients that are present in the recipes that
