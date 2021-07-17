@@ -100,7 +100,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         """
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
-        author = self.context.get('request', None).user
+        author = self.context.get('request').user
         recipe = Recipe.objects.create(author=author, **validated_data)
         for ingredient in ingredients_data:
             ingredient_model = ingredient['id']
