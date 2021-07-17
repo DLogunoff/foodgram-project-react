@@ -172,14 +172,12 @@ class Favorite(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='favorites',
-        #null=True,
         verbose_name='Пользователь'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorites',
-        #null=True,
         verbose_name='Рецепт'
     )
     when_added = models.DateTimeField(

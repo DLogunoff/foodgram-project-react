@@ -85,7 +85,10 @@ class FavoriteViewSet(APIView):
                 {"Fail": "Уже в избранном"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = FavoriteSerializer(data=data, context={'request': request})
+        serializer = FavoriteSerializer(
+            data=data,
+            context={'request': request}
+        )
         if not serializer.is_valid():
             return Response(
                 serializer.errors,
@@ -116,12 +119,16 @@ class ShoppingCartViewSet(APIView):
             "user": user.id,
             "recipe": recipe_id,
         }
-        if ShoppingCart.objects.filter(user=user, recipe__id=recipe_id).exists():
+        shopping_cart_exist = ShoppingCart.objects.filter(
+            user=user,
+            recipe__id=recipe_id
+        ).exists()
+        if shopping_cart_exist:
             return Response(
                 {"Fail": "Уже в корзине"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        context = {'request':request}
+        context = {'request': request}
         serializer = ShoppingCartSerializer(data=data, context=context)
         if not serializer.is_valid():
             return Response(
