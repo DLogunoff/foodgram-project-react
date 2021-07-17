@@ -87,7 +87,7 @@ class FavoriteViewSet(APIView):
             )
         serializer = FavoriteSerializer(
             data=data,
-            context={'request': request}
+            context={"request": request}
         )
         if not serializer.is_valid():
             return Response(
