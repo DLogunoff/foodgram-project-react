@@ -15,7 +15,7 @@ services:
     env_file: 
       - ./.env 
   web: 
-    image: uxubisg/foodgram:latest 
+    image: kedow/foodgram:v1.0
     restart: always 
     depends_on: 
       - db 
