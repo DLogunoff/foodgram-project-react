@@ -1,9 +1,11 @@
 from django.conf.urls import include
 from django.urls import path
+from django.contrib import admin
 
 from .views import FollowViewSet, ListFollowViewSet, logout, obtain_auth_token
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path(
         'users/subscriptions/',
         ListFollowViewSet.as_view(),

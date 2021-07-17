@@ -5,7 +5,6 @@ from .models import Recipe
 
 class RecipeFilter(filters.FilterSet):
     tags = filters.AllValuesMultipleFilter(
-        conjoined=True,
         field_name='tagsinrecipe__tag__slug'
     )
     is_favorited = filters.BooleanFilter(method='get_favorite')
