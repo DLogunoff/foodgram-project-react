@@ -57,7 +57,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
-          stack_file_name: docker-compose.yaml
+          stack_file_name: docker-compose.yml
           script: |
             sudo docker pull kedow/foodgram:latest
             sudo docker pull kedow/infra_frontend:v1.0
