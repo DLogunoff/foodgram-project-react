@@ -30,7 +30,7 @@ class MyAuthToken(auth_views.ObtainAuthToken):
         schema = ManualSchema(
             fields=[
                 coreapi.Field(
-                    name='email',
+                    name="email",
                     required=True,
                     location='form',
                     schema=coreschema.String(
