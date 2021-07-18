@@ -4,13 +4,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from rest_framework import filters, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingCart, Tag)
 from .permissions import AdminOrAuthorOrReadOnly
@@ -29,6 +29,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [AllowAny, ]
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -41,8 +42,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [AllowAny, ]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ('name', )
+    filter_backends = [DjangoFilterBackend, ]
+    filterset_class = IngredientFilter
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -74,7 +76,7 @@ class FavoriteViewSet(APIView):
 
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request, recipe_id):
+    def get(self, request, recipe_id):
         user = request.user
         data = {
             "user": user.id,
@@ -113,7 +115,7 @@ class ShoppingCartViewSet(APIView):
 
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request, recipe_id):
+    def get(self, request, recipe_id):
         user = request.user
         data = {
             "user": user.id,

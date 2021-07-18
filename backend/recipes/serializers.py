@@ -81,10 +81,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None, use_url=True)
     author = UserSerializerModified(read_only=True)
     ingredients = AddIngredientToRecipeSerializer(many=True)
-    tags = serializers.SlugRelatedField(
-        many=True,
-        queryset=Tag.objects.all(),
-        slug_field='id'
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
     )
 
     class Meta:

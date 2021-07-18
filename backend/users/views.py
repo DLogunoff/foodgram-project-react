@@ -7,9 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
 
 from .models import Follow
-from .serializers import FollowSerializer, MyAuthTokenSerializer
+from .serializers import FollowSerializer, MyAuthTokenSerializer, ShowFollowSerializer
 
 User = get_user_model()
 
@@ -49,11 +50,18 @@ class MyAuthToken(auth_views.ObtainAuthToken):
             encoding="application/json",
         )
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'auth_token': token.key})
+
 
 class ListFollowViewSet(generics.ListAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, ]
-    serializer_class = FollowSerializer
+    serializer_class = ShowFollowSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -72,7 +80,7 @@ class FollowViewSet(APIView):
     """
     permission_classes = [IsAuthenticated, ]
 
-    def post(self, request, author_id):
+    def get(self, request, author_id):
         user = request.user
         follow_exist = Follow.objects.filter(
             user=user,
