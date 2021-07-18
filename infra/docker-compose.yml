@@ -8,10 +8,10 @@ services:
       - ./.env
     restart: always
   web:
-    #image: kedow/foodgram:latest
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: kedow/foodgram:latest
+    #build:
+    #  context: ../backend
+    #  dockerfile: Dockerfile
     restart: always
     volumes:
       - static_value:/code/static/

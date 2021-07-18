@@ -60,7 +60,7 @@ jobs:
           stack_file_name: docker-compose.yaml
           script: |
             sudo docker pull kedow/foodgram:latest
-            sudo docker pull pavelkhan/infra_frontend:v1.0
+            sudo docker pull kedow/infra_frontend:v1.0
             sudo docker-compose stop
             sudo docker-compose rm web
             # Создаст файл для переменных окружения
