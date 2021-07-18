@@ -34,7 +34,7 @@ class MyAuthToken(auth_views.ObtainAuthToken):
                     required=True,
                     location='form',
                     schema=coreschema.String(
-                        title='Email',
+                        title="Email",
                         description="Valid email for authentication",
                     ),
                 ),
