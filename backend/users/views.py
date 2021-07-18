@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 
 from .models import Follow
-from .serializers import FollowSerializer, MyAuthTokenSerializer, ShowFollowSerializer
+from .serializers import (FollowSerializer, MyAuthTokenSerializer,
+                          ShowFollowSerializer)
 
 User = get_user_model()
 
