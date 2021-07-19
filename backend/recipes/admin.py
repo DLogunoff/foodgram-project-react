@@ -22,15 +22,19 @@ class IngredientInRecipeAdminInline(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author')
+    list_display = ('id', 'name', 'author', 'in_favorites')
     inlines = (IngredientInRecipeAdminInline, TagsInRecipeInline)
     search_fields = ('author', 'name')
     list_filter = ('author', 'name', 'tags')
+
+    def in_favorites(self, obj):
+        return obj.favorites.count()
 
 
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'measurement_unit')
     list_filter = ('name', )
+    search_fields = ('name', )
 
 
 class IngredientInRecipeAdmin(admin.ModelAdmin):
