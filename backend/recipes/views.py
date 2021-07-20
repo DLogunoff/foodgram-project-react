@@ -70,14 +70,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context.update({'request': self.request})
         return context
 
-    def create(self, request, *args, **kwargs):
-        for ingredient in request.data['ingredients']:
+    def perform_create(self, serializer):
+        for ingredient in self.request.data['ingredients']:
             if ingredient['amount'] < 0:
                 return Response(
                     {'amount': self.ERROR_MESSAGE},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        serializer = self.get_serializer(data=request.data)
+        serializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -86,6 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+
 
 
 class FavoriteViewSet(APIView):
