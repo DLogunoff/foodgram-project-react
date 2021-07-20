@@ -88,7 +88,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
 
-
 class FavoriteViewSet(APIView):
     """
     Describes ViewSet to add and delete Favorite recipes
