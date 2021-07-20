@@ -9,9 +9,6 @@ services:
     restart: always
   web:
     image: kedow/foodgram:latest
-    #build:
-    #  context: ../backend
-    #  dockerfile: Dockerfile
     restart: always
     volumes:
       - static_value:/code/static/
@@ -21,9 +18,6 @@ services:
     env_file:
       - ./.env
   frontend:
-    #build:
-    #  context: ../frontend
-    #  dockerfile: Dockerfile
     image: kedow/foodgram:latest
     volumes:
       - ../frontend/:/app/result_build/

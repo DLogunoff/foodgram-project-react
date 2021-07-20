@@ -17,6 +17,7 @@ from .permissions import AdminOrAuthorOrReadOnly
 from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
                           IngredientSerializer, ShoppingCartSerializer,
                           ShowRecipeSerializer, TagSerializer)
+from .paginators import PageNumberPaginatorModified
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -49,7 +50,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """
-    Describes ViewSet, which provides get/post/delete/patch methods
+    Describes ViewSet, which provides get/post/delete/put methods
     to work with recipes
     """
 
@@ -57,6 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [AdminOrAuthorOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = RecipeFilter
+    pagination_class = PageNumberPaginatorModified
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -67,6 +69,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
+
 
 
 class FavoriteViewSet(APIView):
@@ -112,7 +115,6 @@ class ShoppingCartViewSet(APIView):
     """
     Describes ViewSet to add and delete recipes to/from shopping cart
     """
-
     permission_classes = [IsAuthenticated, ]
 
     def get(self, request, recipe_id):

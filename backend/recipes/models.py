@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 User = get_user_model()
@@ -75,6 +75,12 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    MAX_COOKING_TIME = 1000
+    ZERO_AND_LESS_COOKING_TIME_ERROR = ('Время приготовления '
+                                        'не может быть меньше 1')
+    TOO_MUCH_COOKING_TIME = ('Слишком долгое время приготовления. '
+                             f'Максимальное значение = {MAX_COOKING_TIME}')
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -88,7 +94,10 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название')
     text = models.TextField(verbose_name='Описание')
     cooking_time = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), ],
+        validators=[
+            MinValueValidator(1, ZERO_AND_LESS_COOKING_TIME_ERROR),
+            MaxValueValidator(MAX_COOKING_TIME, TOO_MUCH_COOKING_TIME)
+        ],
         verbose_name='Время приготовления'
     )
     ingredients = models.ManyToManyField(
@@ -143,6 +152,8 @@ class IngredientInRecipe(models.Model):
     Describes Ingredient-Recipe model, which will be used
     by Recipe model
     """
+    BELOW_ZERO_ERROR = 'Количество ингредиента не может быть меньше нуля'
+    TOO_MUCH_INGREDIENTS_ERROR = 'Слишком много ингредиента'
 
     ingredient = models.ForeignKey(
         Ingredient,
@@ -156,7 +167,11 @@ class IngredientInRecipe(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         null=True, blank=True,
-        verbose_name='Количество ингредиента'
+        verbose_name='Количество ингредиента',
+        validators=[
+            MinValueValidator(0, BELOW_ZERO_ERROR),
+            MaxValueValidator(10000, TOO_MUCH_INGREDIENTS_ERROR)
+        ]
     )
 
     class Meta:
