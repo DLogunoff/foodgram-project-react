@@ -16,7 +16,8 @@ from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
 from .permissions import AdminOrAuthorOrReadOnly
 from .serializers import (CreateRecipeSerializer, FavoriteSerializer,
                           IngredientSerializer, ShoppingCartSerializer,
-                          ShowRecipeSerializer, TagSerializer)
+                          ShowRecipeSerializer, TagSerializer,
+                          AddIngredientToRecipeSerializer)
 from .paginators import PageNumberPaginatorModified
 
 
