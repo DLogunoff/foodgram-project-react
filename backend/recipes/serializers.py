@@ -96,7 +96,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError()
         return value
 
-
     def create(self, validated_data):
         """
         Only authorized users can send POST/PUT request methods
