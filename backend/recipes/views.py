@@ -53,7 +53,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     Describes ViewSet, which provides get/post/delete/put methods
     to work with recipes
     """
-    ERROR_MESSAGE = 'Убедитесь, что это значение больше либо равно 0'
     queryset = Recipe.objects.all()
     permission_classes = [AdminOrAuthorOrReadOnly, ]
     filter_backends = [DjangoFilterBackend, ]
@@ -69,23 +68,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
-
-    def perform_create(self, serializer):
-        for ingredient in self.request.data['ingredients']:
-            if ingredient['amount'] < 0:
-                return Response(
-                    {'amount': self.ERROR_MESSAGE},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        serializer(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
 
 
 class FavoriteViewSet(APIView):

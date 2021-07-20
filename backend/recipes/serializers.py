@@ -78,8 +78,6 @@ class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
-    ERROR_MESSAGE = 'Убедитесь, что это значение больше либо равно 0.'
-
     image = Base64ImageField(max_length=None, use_url=True)
     author = UserSerializerModified(read_only=True)
     ingredients = AddIngredientToRecipeSerializer(many=True)
@@ -92,12 +90,12 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
-    def validate(self, attrs):
-
-        for ingredient in attrs['ingredients']:
+    def validate_ingredients(self, value):
+        for ingredient in value:
             if ingredient['amount'] < 0:
-                raise serializers.ValidationError(self.ERROR_MESSAGE)
-        return attrs
+                raise serializers.ValidationError()
+        return value
+
 
     def create(self, validated_data):
         """
@@ -112,6 +110,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients_data:
             ingredient_model = ingredient['id']
             amount = ingredient['amount']
+            print('aaa')
             IngredientInRecipe.objects.create(
                 ingredient=ingredient_model,
                 recipe=recipe,
