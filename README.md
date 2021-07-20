@@ -16,14 +16,14 @@ Foodgram - социальная сеть для людей, которые лю�
 - Запустите GitHub Actions
 - Если workflow прошёл успешно, зайдите на сервер, узнайте ID контейнера с именем web и скопируйте его
 - Выполните следующие команды:
-'''
+```
 docker exec -it <id> bash
 python manage.py makemigrations recipes
 python manage.py makemigrations users
 python manage.py migrate
 python manage.py collectstatic
 python manage.py createsuperuser
-'''
+```
 Поздравляем, проект развёрнут! Перейдите по IP ВМ, чтобы увидеть сайт.
 
 ### 
