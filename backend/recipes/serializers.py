@@ -90,12 +90,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
-    def validate_ingredients(self, value):
-        for ingredient in value:
-            if ingredient['amount'] < 0:
-                raise serializers.ValidationError()
-        return value
-
     def create(self, validated_data):
         """
         Only authorized users can send POST/PUT request methods
@@ -109,7 +103,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients_data:
             ingredient_model = ingredient['id']
             amount = ingredient['amount']
-            print('aaa')
             IngredientInRecipe.objects.create(
                 ingredient=ingredient_model,
                 recipe=recipe,
