@@ -78,6 +78,10 @@ class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
+    AMOUNT_ERROR_MESSAGE = ('Количество ингредиента '
+                            'должно быть больше или равно 0')
+    IMAGE_ERROR_MESSAGE = 'Добавьте изображение'
+
     image = Base64ImageField(max_length=None, use_url=True)
     author = UserSerializerModified(read_only=True)
     ingredients = AddIngredientToRecipeSerializer(many=True)
@@ -90,17 +94,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
-    def validate_image(self, value):
-        if value.get('image') is None:
-            raise serializers.ValidationError('Добавьте изображение')
-        return value
-
-    def validate_ingredients(self, value):
-        for ingredient in value:
-            if ingredient['amount'] < 0:
-                raise serializers.ValidationError('testtest')
-        return value
-
     def create(self, validated_data):
         """
         Only authorized users can send POST/PUT request methods
@@ -108,6 +101,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         so author can't be None.
         """
         ingredients_data = validated_data.pop('ingredients')
+        for ingredient in ingredients_data:
+            if ingredient['amount'] < 0:
+                raise serializers.ValidationError(self.AMOUNT_ERROR_MESSAGE)
         tags_data = validated_data.pop('tags')
         author = self.context.get('request').user
         recipe = Recipe.objects.create(author=author, **validated_data)
@@ -124,6 +120,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        if validated_data.get('image') is None:
+            raise serializers.ValidationError(self.IMAGE_ERROR_MESSAGE)
         tags_data = validated_data.pop('tags')
         ingredient_data = validated_data.pop('ingredients')
         TagsInRecipe.objects.filter(recipe=instance).delete()
