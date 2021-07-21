@@ -90,6 +90,17 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
+    def validate_image(self, value):
+        if value.get('image') is None:
+            raise serializers.ValidationError('Добавьте изображение')
+        return value
+
+    def validate_ingredients(self, value):
+        for ingredient in value:
+            if ingredient['amount'] < 0:
+                raise serializers.ValidationError('testtest')
+        return value
+
     def create(self, validated_data):
         """
         Only authorized users can send POST/PUT request methods
