@@ -121,8 +121,8 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        if validated_data.get('image') is None:
-            raise serializers.ValidationError(self.IMAGE_ERROR_MESSAGE)
+        #if validated_data.get('image') is None:
+            #raise serializers.ValidationError(self.IMAGE_ERROR_MESSAGE)
         tags_data = validated_data.pop('tags')
         ingredient_data = validated_data.pop('ingredients')
         TagsInRecipe.objects.filter(recipe=instance).delete()
@@ -140,7 +140,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             )
         instance.name = validated_data.pop('name')
         instance.text = validated_data.pop('text')
-        instance.image = validated_data.pop('image')
+        if validated_data.get('image') is not None:
+            instance.image = validated_data.pop('image')
+        #instance.image = validated_data.pop('image')
         instance.cooking_time = validated_data.pop('cooking_time')
         instance.save()
         return instance
