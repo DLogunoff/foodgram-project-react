@@ -109,7 +109,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         author = self.context.get('request').user
         recipe = Recipe.objects.create(author=author, **validated_data)
         for ingredient in ingredients_data:
-            ingredient_model = ingredient['id']
+            ingredient_model = Ingredient.objects.get(id=ingredient['id'])
             amount = ingredient['amount']
             IngredientInRecipe.objects.create(
                 ingredient=ingredient_model,
@@ -134,7 +134,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         for new_ingredient in ingredient_data:
             IngredientInRecipe.objects.create(
-                ingredient=new_ingredient['id'],
+                ingredient=Ingredient.objects.get(id=new_ingredient['id']),
                 recipe=instance,
                 amount=new_ingredient['amount']
             )
