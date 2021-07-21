@@ -70,17 +70,18 @@ class ShowRecipeSerializer(serializers.ModelSerializer):
 
 
 class AddIngredientToRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
-        model = IngredientInRecipe
+        model = Ingredient
         fields = ('id', 'amount')
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
     AMOUNT_ERROR_MESSAGE = ('Количество ингредиента '
                             'должно быть больше или равно 0')
-    IMAGE_ERROR_MESSAGE = 'Добавьте изображение'
+    IMAGE_ERROR_MESSAGE = 'Заново добавьте изображение'
 
     image = Base64ImageField(max_length=None, use_url=True)
     author = UserSerializerModified(read_only=True)
