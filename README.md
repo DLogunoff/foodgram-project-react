@@ -25,8 +25,3 @@ python manage.py collectstatic
 python manage.py createsuperuser
 ```
 Поздравляем, проект развёрнут! Перейдите по IP ВМ, чтобы увидеть сайт.
-
-### 
-178.154.241.11
-login: admin@admin.ru
-pass: 130999dan
